@@ -1,6 +1,7 @@
 defmodule Countries.Subdivisions do
   import Countries.Utils, only: [to_map: 1]
   alias Countries.Subdivision
+  require Logger
 
   def all(country) do
     country.alpha2
@@ -39,14 +40,15 @@ defmodule Countries.Subdivisions do
 
   defp subdivisions(country_code) do
     data_path = fn(path) ->
-      # Path.join("data", path) |> Path.expand(__DIR__)
       Path.join([:code.priv_dir(:countries), "data"] ++ path)
     end
 
     try do
       data_path.(["subdivisions", "#{country_code}.yaml"]) |> :yamerl.decode_file |> List.first
     catch
-      _exception -> []
+      exception -> 
+        Logger.warn("Could not open subdivision #{country_code}, error: #{inspect(exception)}")
+        []
     end
   end
 
